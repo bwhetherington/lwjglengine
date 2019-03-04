@@ -14,7 +14,6 @@ public class Entity {
     }
 
     public void render(ShaderProgram program) {
-        program.setUniform("model", transformation.getMatrix());
         mesh.render(program);
     }
 

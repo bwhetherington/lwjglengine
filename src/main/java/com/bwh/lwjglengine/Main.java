@@ -1,5 +1,6 @@
 package com.bwh.lwjglengine;
 
+import com.bwh.lwjglengine.engine.Camera;
 import com.bwh.lwjglengine.engine.Entity;
 import com.bwh.lwjglengine.engine.GameEngine;
 import com.bwh.lwjglengine.graphics.*;
@@ -16,7 +17,7 @@ import static org.lwjgl.opengl.GL11.*;
 public class Main extends GameEngine {
     private Renderer renderer;
     private ShaderProgram program;
-    private Entity entity, entity2;
+    private Camera camera = new Camera();
     private List<Entity> entities = new ArrayList<>();
     private Matrix4f projection;
     private double theta = 0;
@@ -108,22 +109,21 @@ public class Main extends GameEngine {
 
 //            Mesh mesh = ObjLoader.loadObj("models/cube.obj").toMesh();
             Mesh mesh = ObjLoader2.loadMesh("models/cube.obj");
-//            mesh.setTexture(texture);
+            mesh.setTexture(texture);
 
-            entity = new Entity(mesh);
-            entity2 = new Entity(mesh);
-            entity2.getTransformation()
-                    .translate(0.2f, 0, -2.2f)
-                    .scale(0.5f, 0.5f, 0.5f);
-
-            entities.add(entity);
-            entities.add(entity2);
+            for (int i = -2; i < 3; i++) {
+                for (int j = -2; j < 3; j++) {
+                    Entity e = new Entity(mesh);
+                    e.getTransformation().translate(i * 2, j * 2, 0);
+                    entities.add(e);
+                }
+            }
 
             program.setUniform("projection", projection);
-            Transformation trans = entity.getTransformation();
-            trans
-                    .translate(0, 0, -2)
-                    .scale(0.5f, 0.5f, 0.5f);
+
+            camera.getTransformation()
+                    .translate(0, 0, 15);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -132,9 +132,24 @@ public class Main extends GameEngine {
     @Override
     protected void update(double interval) {
         theta += 0.5 * interval;
-        Transformation trans = entity.getTransformation();
-        trans.rotateY((float) theta);
-        trans.rotateX((float) theta / 2);
+        camera.getTransformation()
+                .rotateY((float) theta);
+        for (int i = 0; i < entities.size(); i++) {
+            final Entity e = entities.get(i);
+            final Transformation tx = e.getTransformation();
+            final float rotation = (float) theta;
+            switch (i % 3) {
+                case 0:
+                    tx.rotateX(rotation);
+                    break;
+                case 1:
+                    tx.rotateY(rotation);
+                    break;
+                case 2:
+                    tx.rotateZ(rotation);
+                    break;
+            }
+        }
     }
 
     @Override
@@ -147,7 +162,7 @@ public class Main extends GameEngine {
         }
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         for (Entity e : entities) {
-            e.render(program);
+            renderer.render(camera, e);
         }
     }
 

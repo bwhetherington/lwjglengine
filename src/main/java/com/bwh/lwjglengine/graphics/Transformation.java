@@ -5,24 +5,28 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class Transformation {
-    private Matrix4f matrix = new Matrix4f().identity();
+    protected final Matrix4f matrix = new Matrix4f().identity();
 
-    private Vector3f scale = new Vector3f(1, 1, 1);
-    private Vector3f translation = new Vector3f(0, 0, 0);
-    private float rotateX, rotateY, rotateZ;
+    protected final Vector3f scale = new Vector3f(1, 1, 1);
+    protected final Vector3f translation = new Vector3f(0, 0, 0);
+    protected float rotateX, rotateY, rotateZ;
 //    private Quaternionf rotation = new Quaternionf().identity();
 
     private boolean shouldUpdate = true;
 
+    protected void calculateMatrix() {
+        matrix
+                .identity()
+                .translate(translation)
+                .rotateX(rotateX)
+                .rotateY(rotateY)
+                .rotateZ(rotateZ)
+                .scale(scale);
+    }
+
     public Matrix4f getMatrix() {
         if (shouldUpdate) {
-            matrix
-                    .identity()
-                    .translate(translation)
-                    .rotateX(rotateX)
-                    .rotateY(rotateY)
-                    .rotateZ(rotateZ)
-                    .scale(scale);
+            calculateMatrix();
             unflag();
         }
         return matrix;
