@@ -21,7 +21,6 @@ public class Window {
 
     public Window(final String name, final int width, final int height, boolean isVSync) {
         init(name, width, height, isVSync);
-//        loop();
     }
 
     private void init(final String name, final int width, final int height, boolean isVSync) {
@@ -39,6 +38,10 @@ public class Window {
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
         windowId = glfwCreateWindow(width, height, name, NULL, NULL);
         if (windowId == NULL) {

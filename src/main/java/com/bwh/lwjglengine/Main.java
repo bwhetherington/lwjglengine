@@ -43,7 +43,7 @@ public class Main extends GameEngine {
             program.createUniform("texture_sampler");
 
             projection = new Matrix4f()
-                    .perspective((float) (Math.PI / 2), (float) getAspectRatio(), 0.01f, 100.0f);
+                    .perspective((float) (Math.PI / 4), (float) getAspectRatio(), 0.01f, 100.0f);
 
             renderer = new Renderer();
             renderer.init();
@@ -111,8 +111,8 @@ public class Main extends GameEngine {
             Mesh mesh = ObjLoader2.loadMesh("models/cube.obj");
             mesh.setTexture(texture);
 
-            for (int i = -2; i < 3; i++) {
-                for (int j = -2; j < 3; j++) {
+            for (int i = -10; i <= 10; i++) {
+                for (int j = -10; j <= 10; j++) {
                     Entity e = new Entity(mesh);
                     e.getTransformation().translate(i * 2, j * 2, 0);
                     entities.add(e);
@@ -122,7 +122,7 @@ public class Main extends GameEngine {
             program.setUniform("projection", projection);
 
             camera.getTransformation()
-                    .translate(0, 0, 15);
+                    .translate(0, 0, 50);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -132,8 +132,8 @@ public class Main extends GameEngine {
     @Override
     protected void update(double interval) {
         theta += 0.5 * interval;
-        camera.getTransformation()
-                .rotateY((float) theta);
+//        camera.getTransformation()
+//                .rotateY((float) theta);
         for (int i = 0; i < entities.size(); i++) {
             final Entity e = entities.get(i);
             final Transformation tx = e.getTransformation();
