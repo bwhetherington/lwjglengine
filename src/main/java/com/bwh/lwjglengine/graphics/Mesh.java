@@ -104,6 +104,8 @@ public class Mesh {
         material.bind(program);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idxVboId);
+
+        program.validate();
         glDrawElements(GL_TRIANGLES, getVertexCount(), GL_UNSIGNED_INT, 0);
 
         material.unbind();

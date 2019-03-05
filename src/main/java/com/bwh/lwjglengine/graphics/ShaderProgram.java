@@ -43,47 +43,26 @@ public class ShaderProgram {
     }
 
     public int getUniformLocation(String name) {
-        Integer location = uniforms.get(name);
-//        if (location == null) {
-//            System.err.println("Unknown location");
-//            return -1;
-//        } else {
-//            System.out.println(name + ": " + location);
-//            return location;
-//        }
-        System.out.println(name + " => " + location);
-        return location;
+        return uniforms.getOrDefault(name, -1);
     }
 
     public void setUniform(String name, Matrix4f mat) {
         int location = getUniformLocation(name);
-        if (location >= 0) {
-            try (MemoryStack stack = MemoryStack.stackPush()) {
-                FloatBuffer buf = stack.mallocFloat(16);
-                mat.get(buf);
-                glUniformMatrix4fv(location, false, buf);
-            }
-        } else {
-            System.err.println("Unknown uniform: " + name);
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            FloatBuffer buf = stack.mallocFloat(16);
+            mat.get(buf);
+            glUniformMatrix4fv(location, false, buf);
         }
     }
 
     public void setUniform(String name, float val) {
         int location = getUniformLocation(name);
-        if (location >= 0) {
-            glUniform1f(location, val);
-        } else {
-            System.err.println("Unknown uniform: " + name);
-        }
+        glUniform1f(location, val);
     }
 
     public void setUniform(String name, int val) {
         int location = getUniformLocation(name);
-        if (location >= 0) {
-            glUniform1i(location, val);
-        } else {
-            System.err.println("Unknown uniform: " + name);
-        }
+        glUniform1i(location, val);
     }
 
     private int createShader(String file, int shaderType) throws Exception {
@@ -116,6 +95,13 @@ public class ShaderProgram {
         }
         if (fShaderId != 0) {
             glDetachShader(programId, fShaderId);
+        }
+    }
+
+    public void validate() {
+        glValidateProgram(programId);
+        if (glGetProgrami(programId, GL_VALIDATE_STATUS) == 0) {
+            System.err.println("Warning validating Shader code: " + glGetProgramInfoLog(programId, 1024));
         }
     }
 
@@ -153,20 +139,12 @@ public class ShaderProgram {
 
     public void setUniform(String uniform, Vector3f val) {
         int location = getUniformLocation(uniform);
-        if (location >= 0) {
-            glUniform3f(location, val.x, val.y, val.z);
-        } else {
-            System.err.println("Unknown uniform: " + uniform);
-        }
+        glUniform3f(location, val.x, val.y, val.z);
     }
 
     public void setUniform(String uniform, Vector4f val) {
         int location = getUniformLocation(uniform);
-        if (location >= 0) {
-            glUniform4f(location, val.x, val.y, val.z, val.w);
-        } else {
-            System.err.println("Unknown uniform: " + uniform);
-        }
+        glUniform4f(location, val.x, val.y, val.z, val.w);
     }
 
     public void setUniform(String uniform, PointLight.Attenuation attenuation) {

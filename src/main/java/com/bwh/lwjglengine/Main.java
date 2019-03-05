@@ -9,6 +9,7 @@ import com.bwh.lwjglengine.models.ObjLoader;
 import com.bwh.lwjglengine.models.ObjLoader2;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +53,8 @@ public class Main extends GameEngine {
             program.createUniform("texture_sampler");
             program.createMaterialUniform("material");
             program.createPointLightUniform("pointLight");
+            program.createUniform("ambientLight");
+            program.createUniform("specularPower");
 
             // Create the Mesh
             float[] positions = new float[] {
@@ -110,8 +113,11 @@ public class Main extends GameEngine {
             program.setUniform("texture_sampler", 0);
 
 //            Mesh mesh = ObjLoader.loadObj("models/cube.obj").toMesh();
-            Mesh mesh = ObjLoader2.loadMesh("models/bunny.obj");
-//            mesh.setTexture(texture);
+            Mesh mesh = ObjLoader2.loadMesh("models/cube.obj");
+
+            Material mat = new Material(texture, 1f);
+
+            mesh.setMaterial(mat);
 
             for (int i = 0; i < 1; i++) {
                 for (int j = 0; j < 1; j++) {
@@ -127,11 +133,13 @@ public class Main extends GameEngine {
                     .translate(0, 0, 5);
 
             PointLight light = new PointLight(
-                    new Vector3f(1, 1, 1),
-                    new Vector3f(1, 3, 3),
+                    new Vector3f(0.3f, 0.3f, 0.3f),
+                    new Vector3f(0, 0, 1),
                     1
             );
             program.setUniform("pointLight", light);
+            program.setUniform("ambientLight", new Vector3f(1, 1, 1));
+            program.setUniform("specularPower", 1);
 
         } catch (Exception e) {
             e.printStackTrace();

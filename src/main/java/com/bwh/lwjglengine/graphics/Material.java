@@ -26,6 +26,10 @@ public class Material {
         this(DEFAULT_COLOR, DEFAULT_COLOR, DEFAULT_COLOR, null, 0);
     }
 
+    public Material(Texture texture, float reflectance) {
+        this(DEFAULT_COLOR, DEFAULT_COLOR, DEFAULT_COLOR, texture, reflectance);
+    }
+
     public boolean hasTexture() {
         return texture != null;
     }
