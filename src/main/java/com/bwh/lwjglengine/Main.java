@@ -8,6 +8,7 @@ import com.bwh.lwjglengine.engine.Window;
 import com.bwh.lwjglengine.models.ObjLoader;
 import com.bwh.lwjglengine.models.ObjLoader2;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,10 +39,6 @@ public class Main extends GameEngine {
         try {
             program = new ShaderProgram("shaders/basic.vert", "shaders/basic.frag");
 
-            program.createUniform("projectionMatrix");
-            program.createUniform("modelMatrix");
-            program.createUniform("texture_sampler");
-
             projection = new Matrix4f()
                     .perspective((float) (Math.PI / 4), (float) getAspectRatio(), 0.01f, 100.0f);
 
@@ -50,6 +47,11 @@ public class Main extends GameEngine {
 
             renderer.setProgram(program);
 
+            program.createUniform("projection");
+            program.createUniform("modelView");
+            program.createUniform("texture_sampler");
+            program.createMaterialUniform("material");
+            program.createPointLightUniform("pointLight");
 
             // Create the Mesh
             float[] positions = new float[] {
@@ -108,11 +110,11 @@ public class Main extends GameEngine {
             program.setUniform("texture_sampler", 0);
 
 //            Mesh mesh = ObjLoader.loadObj("models/cube.obj").toMesh();
-            Mesh mesh = ObjLoader2.loadMesh("models/cube.obj");
-            mesh.setTexture(texture);
+            Mesh mesh = ObjLoader2.loadMesh("models/bunny.obj");
+//            mesh.setTexture(texture);
 
-            for (int i = -10; i <= 10; i++) {
-                for (int j = -10; j <= 10; j++) {
+            for (int i = 0; i < 1; i++) {
+                for (int j = 0; j < 1; j++) {
                     Entity e = new Entity(mesh);
                     e.getTransformation().translate(i * 2, j * 2, 0);
                     entities.add(e);
@@ -122,7 +124,14 @@ public class Main extends GameEngine {
             program.setUniform("projection", projection);
 
             camera.getTransformation()
-                    .translate(0, 0, 50);
+                    .translate(0, 0, 5);
+
+            PointLight light = new PointLight(
+                    new Vector3f(1, 1, 1),
+                    new Vector3f(1, 3, 3),
+                    1
+            );
+            program.setUniform("pointLight", light);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -157,7 +166,8 @@ public class Main extends GameEngine {
         Window window = getWindow();
         if (window.isResized()) {
             glViewport(0, 0, window.getWidth(), window.getHeight());
-            projection.perspective((float) (Math.PI / 2), (float) getAspectRatio(), 0.01f, 100.0f);
+            projection.identity().perspective((float) (Math.PI / 2), (float) getAspectRatio(), 0.01f, 100.0f);
+            program.setUniform("projection", projection);
             window.setResized(false);
         }
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

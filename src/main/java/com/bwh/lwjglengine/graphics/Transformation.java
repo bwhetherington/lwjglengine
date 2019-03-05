@@ -1,5 +1,6 @@
 package com.bwh.lwjglengine.graphics;
 
+import com.bwh.lwjglengine.engine.Camera;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -10,7 +11,6 @@ public class Transformation {
     protected final Vector3f scale = new Vector3f(1, 1, 1);
     protected final Vector3f translation = new Vector3f(0, 0, 0);
     protected float rotateX, rotateY, rotateZ;
-//    private Quaternionf rotation = new Quaternionf().identity();
 
     private boolean shouldUpdate = true;
 

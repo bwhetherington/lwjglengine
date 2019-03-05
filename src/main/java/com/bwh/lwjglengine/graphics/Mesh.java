@@ -1,6 +1,7 @@
 package com.bwh.lwjglengine.graphics;
 
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -11,6 +12,8 @@ import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 
+
+
 public class Mesh {
     private int vaoId;
     private int posVboId;
@@ -19,7 +22,7 @@ public class Mesh {
     private int idxVboId;
     private int vertexCount;
 
-    private Texture texture;
+    private Material material = new Material();
 
     public Mesh(float[] vertices, float[] texCoords, float[] normals, int[] indices) {
         System.out.println("v:  " + vertices.length / 3);
@@ -27,13 +30,18 @@ public class Mesh {
         System.out.println("vn: " + normals.length / 3);
         System.out.println("p:  " + indices.length);
 
+        FloatBuffer verticesBuffer = null;
+        FloatBuffer texBuffer = null;
+        FloatBuffer normBuffer = null;
+        IntBuffer indicesBuffer = null;
+
         vertexCount = indices.length;
-        try (MemoryStack stack = MemoryStack.stackPush()) {
+        try {
             vaoId = glGenVertexArrays();
             glBindVertexArray(vaoId);
 
             // Vertices
-            FloatBuffer verticesBuffer = stack.mallocFloat(vertices.length);
+            verticesBuffer = MemoryUtil.memAllocFloat(vertices.length);
             verticesBuffer.put(vertices).flip();
 
             posVboId = glGenBuffers();
@@ -42,7 +50,7 @@ public class Mesh {
             glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
 
             // Texture coordinates
-            FloatBuffer texBuffer = stack.mallocFloat(texCoords.length);
+            texBuffer = MemoryUtil.memAllocFloat(texCoords.length);
             texBuffer.put(texCoords).flip();
 
             texVboId = glGenBuffers();
@@ -51,7 +59,7 @@ public class Mesh {
             glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
 
             // Normals
-            FloatBuffer normBuffer = stack.mallocFloat(normals.length);
+            normBuffer = MemoryUtil.memAllocFloat(normals.length);
             normBuffer.put(normals).flip();
 
             normVboId = glGenBuffers();
@@ -60,7 +68,7 @@ public class Mesh {
             glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, 0);
 
             // Indices
-            IntBuffer indicesBuffer = stack.mallocInt(indices.length);
+            indicesBuffer = MemoryUtil.memAllocInt(indices.length);
             indicesBuffer.put(indices).flip();
 
             idxVboId = glGenBuffers();
@@ -68,6 +76,11 @@ public class Mesh {
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL_STATIC_DRAW);
 
         } finally {
+            MemoryUtil.memFree(verticesBuffer);
+            MemoryUtil.memFree(texBuffer);
+            MemoryUtil.memFree(normBuffer);
+            MemoryUtil.memFree(indicesBuffer);
+
             glBindBuffer(GL_ARRAY_BUFFER, 0);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
             glBindVertexArray(0);
@@ -78,28 +91,28 @@ public class Mesh {
         return vertexCount;
     }
 
-    public void setTexture(Texture texture) {
-        this.texture = texture;
+    public void setMaterial(Material material) {
+        this.material = material;
     }
 
     public void render(ShaderProgram program) {
         glBindVertexArray(vaoId);
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(2);
 
-        if (texture != null) {
-            glActiveTexture(GL_TEXTURE0);
-            texture.bind();
-        }
+        material.bind(program);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idxVboId);
         glDrawElements(GL_TRIANGLES, getVertexCount(), GL_UNSIGNED_INT, 0);
 
+        material.unbind();
         glBindTexture(GL_TEXTURE_2D, 0);
 
         glBindVertexArray(0);
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
+        glDisableVertexAttribArray(2);
     }
 
     public void cleanup() {
