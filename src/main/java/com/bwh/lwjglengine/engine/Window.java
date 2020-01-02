@@ -132,4 +132,21 @@ public class Window {
     public int getHeight() {
         return height;
     }
+
+    public void hideCursor() {
+        glfwSetInputMode(windowId, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
+
+    public void showCursor() {
+        glfwSetInputMode(windowId, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+
+    public void setMouseListener(MouseListener listener) {
+        glfwSetCursorPosCallback(windowId, new GLFWCursorPosCallback() {
+            @Override
+            public void invoke(long window, double x, double y) {
+                listener.onMouseMove(x, y);
+            }
+        });
+    }
 }

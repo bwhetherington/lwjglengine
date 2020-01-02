@@ -64,7 +64,7 @@ public class Mesh {
 
             normVboId = glGenBuffers();
             glBindBuffer(GL_ARRAY_BUFFER, normVboId);
-            glBufferData(GL_ARRAY_BUFFER, texBuffer, GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, normBuffer, GL_STATIC_DRAW);
             glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, 0);
 
             // Indices
